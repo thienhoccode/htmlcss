@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- BOOK CARD FACTORY ---
   function createBookCard(book) {
     const disc = book.originalPrice ? Math.round((1 - book.price/book.originalPrice)*100) : 0;
-    const stars = '★'.repeat(Math.floor(book.rating)) + (book.rating % 1 >= 0.5 ? '½' : '');
+    const fullStars = Math.floor(book.rating);
+    const hasHalf = book.rating % 1 >= 0.5;
+    const stars = '★'.repeat(fullStars) + (hasHalf ? '½' : '') + '☆'.repeat(5 - fullStars - (hasHalf ? 1 : 0));
     const badgeHTML = book.badge ? `<span class="book-card__badge book-card__badge--${book.badge === 'new' ? 'new' : 'sale'}">${book.badge === 'bestseller' ? 'BEST' : book.badge === 'new' ? 'MỚI' : `-${disc}%`}</span>` : '';
     return `
       <div class="book-card aos-fade-up" style="--delay:${Math.random()*0.3}s">
