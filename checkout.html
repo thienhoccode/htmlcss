@@ -93,10 +93,11 @@
 <script src="js/cart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const items = JSON.parse(localStorage.getItem('tsv_cart') || '[]');
+  let items = JSON.parse(localStorage.getItem('tsv_cart') || '[]');
   if(items.length === 0) {
-    window.location.href = 'cart.html';
-    return;
+    // Demo mode: Inject dummy items so the checkout page can be previewed directly via URL
+    items = [{ id: 1, qty: 1 }];
+    localStorage.setItem('tsv_cart', JSON.stringify(items));
   }
 
   const container = document.getElementById('checkout-items');
@@ -108,9 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     subtotal += b.price * item.qty;
     return `
       <div style="display:flex;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed var(--border);">
-        <div style="width:48px;height:64px;background:var(--surface);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;position:relative;">
-          ${b.emoji}
-          <span style="position:absolute;top:-8px;right:-8px;background:var(--gold);color:#000;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;">${item.qty}</span>
+        <div style="width:48px;height:64px;position:relative;">
+          <div style="width:100%;height:100%;background:var(--surface);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+            ${b.emoji}
+          </div>
+          <span style="position:absolute;top:-8px;right:-8px;background:var(--gold);color:#000;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;z-index:2;">${item.qty}</span>
         </div>
         <div style="flex:1;">
           <div style="font-size:0.85rem;color:var(--text);font-weight:500;">${b.title}</div>
