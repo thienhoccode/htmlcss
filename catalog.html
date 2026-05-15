@@ -7,9 +7,9 @@
   <meta name="description" content="Khám phá hàng nghìn đầu sách theo thể loại, tác giả, giá cả. Lọc và tìm kiếm dễ dàng." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/main.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/main.css?v=3" />
+  <link rel="stylesheet" href="css/components.css?v=3" />
+  <link rel="stylesheet" href="css/animations.css?v=3" />
 </head>
 <body>
 <div id="toast-container" class="toast-container"></div>
@@ -151,7 +151,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function createCard(book) {
     const disc = book.originalPrice ? Math.round((1 - book.price/book.originalPrice)*100) : 0;
-    const stars = '★'.repeat(Math.floor(book.rating));
+    const fullStars = Math.floor(book.rating);
+    const hasHalf = book.rating % 1 >= 0.5;
+    const stars = '★'.repeat(fullStars) + (hasHalf ? '½' : '') + '☆'.repeat(5 - fullStars - (hasHalf ? 1 : 0));
     if (!isGrid) {
       return `<div class="book-card" style="flex-direction:row;height:auto;">
         <div class="book-card__cover-wrap" style="width:120px;height:150px;flex-shrink:0;">
