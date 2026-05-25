@@ -13,9 +13,49 @@
 <body>
 <div id="toast-container" class="toast-container"></div>
 
+<!-- ===== MINI CART OVERLAY ===== -->
+<div id="cart-overlay" class="cart-overlay"></div>
+<aside id="mini-cart" class="mini-cart">
+  <div class="mini-cart__header">
+    <h3>Giỏ Hàng</h3>
+    <button id="close-cart" class="mini-cart__close" aria-label="Đóng giỏ hàng">✕</button>
+  </div>
+  <div id="cart-items" class="mini-cart__items"></div>
+  <div class="mini-cart__footer">
+    <div class="mini-cart__total">
+      <span>Tổng cộng</span>
+      <span id="cart-total">0₫</span>
+    </div>
+    <a href="checkout.html" class="btn btn--primary btn--full">Thanh Toán</a>
+    <a href="cart.html" class="btn btn--outline btn--full">Xem Giỏ Hàng</a>
+  </div>
+</aside>
+
+<!-- ===== LIVE SEARCH OVERLAY ===== -->
+<div id="search-overlay" class="search-overlay">
+  <div class="search-overlay__inner">
+    <div class="search-overlay__box">
+      <span class="search-overlay__icon">⌕</span>
+      <input type="text" id="search-input" placeholder="Tìm kiếm sách..." autocomplete="off" />
+      <button id="close-search" aria-label="Đóng tìm kiếm">✕</button>
+    </div>
+    <div id="search-results" class="search-results"></div>
+  </div>
+</div>
+
 <header id="main-header" class="header scrolled">
-  <div class="container header__inner" style="justify-content:center;">
+  <div class="container header__inner">
     <a href="index.html" class="logo"><span class="logo__icon">📚</span><span class="logo__text">Tủ Sách <em>Vàng</em></span></a>
+    <nav class="nav" id="main-nav">
+      <a href="index.html" class="nav__link">Trang Chủ</a>
+      <a href="catalog.html" class="nav__link">Danh Mục</a>
+      <a href="blog.html" class="nav__link">Blog Sách</a>
+      <a href="account.html" class="nav__link">Tài Khoản</a>
+    </nav>
+    <div class="header__actions">
+      <button id="search-btn" class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+      <button id="cart-btn" class="icon-btn cart-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span id="cart-count" class="cart-count">0</span></button>
+    </div>
   </div>
 </header>
 
@@ -78,7 +118,7 @@
       <!-- ORDER SUMMARY -->
       <aside class="order-summary" style="top:120px;">
         <h3>Đơn Hàng Của Bạn</h3>
-        <div id="checkout-items" style="margin-bottom:24px;max-height:300px;overflow-y:auto;padding-right:10px;"></div>
+        <div id="checkout-items" style="margin-bottom:24px;max-height:300px;overflow-y:auto;padding-right:10px;padding-top:10px;"></div>
         
         <div class="summary-row"><span>Tạm tính</span><span id="co-subtotal">0₫</span></div>
         <div class="summary-row"><span>Phí vận chuyển</span><span id="co-shipping">30.000₫</span></div>
@@ -91,6 +131,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/search.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   let items = JSON.parse(localStorage.getItem('tsv_cart') || '[]');

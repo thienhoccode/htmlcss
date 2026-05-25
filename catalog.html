@@ -74,23 +74,23 @@
       </div>
       <div class="filter-group">
         <h4>Tác Giả</h4>
-        <label class="filter-option"><input type="checkbox" /><label>Nguyễn Nhật Ánh</label></label>
-        <label class="filter-option"><input type="checkbox" /><label>Paulo Coelho</label></label>
-        <label class="filter-option"><input type="checkbox" /><label>Dale Carnegie</label></label>
-        <label class="filter-option"><input type="checkbox" /><label>Yuval Noah Harari</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-author" id="f-nna" value="Nguyễn Nhật Ánh" /><label for="f-nna">Nguyễn Nhật Ánh</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-author" id="f-coelho" value="Paulo Coelho" /><label for="f-coelho">Paulo Coelho</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-author" id="f-carnegie" value="Dale Carnegie" /><label for="f-carnegie">Dale Carnegie</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-author" id="f-harari" value="Yuval Noah Harari" /><label for="f-harari">Yuval Noah Harari</label></label>
       </div>
       <div class="filter-group">
         <h4>Nhà Xuất Bản</h4>
-        <label class="filter-option"><input type="checkbox" /><label>NXB Trẻ</label></label>
-        <label class="filter-option"><input type="checkbox" /><label>NXB Kim Đồng</label></label>
-        <label class="filter-option"><input type="checkbox" /><label>First News</label></label>
-        <label class="filter-option"><input type="checkbox" /><label>Alpha Books</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-pub" id="f-nxbtre" value="NXB Trẻ" /><label for="f-nxbtre">NXB Trẻ</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-pub" id="f-nxbkd" value="NXB Kim Đồng" /><label for="f-nxbkd">NXB Kim Đồng</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-pub" id="f-firstnews" value="First News" /><label for="f-firstnews">First News</label></label>
+        <label class="filter-option"><input type="checkbox" class="filter-pub" id="f-alpha" value="Alpha Books" /><label for="f-alpha">Alpha Books</label></label>
       </div>
       <div class="filter-group">
         <h4>Đánh Giá</h4>
-        <label class="filter-option"><input type="radio" name="rating" /><label>⭐⭐⭐⭐⭐ (5 sao)</label></label>
-        <label class="filter-option"><input type="radio" name="rating" /><label>⭐⭐⭐⭐+ (4+ sao)</label></label>
-        <label class="filter-option"><input type="radio" name="rating" /><label>⭐⭐⭐+ (3+ sao)</label></label>
+        <label class="filter-option"><input type="radio" name="rating" id="f-r5" value="5" /><label for="f-r5"><span class="filter-stars">★★★★★</span> 5 sao</label></label>
+        <label class="filter-option"><input type="radio" name="rating" id="f-r4" value="4" /><label for="f-r4"><span class="filter-stars">★★★★</span>+ 4 sao trở lên</label></label>
+        <label class="filter-option"><input type="radio" name="rating" id="f-r3" value="3" /><label for="f-r3"><span class="filter-stars">★★★</span>+ 3 sao trở lên</label></label>
       </div>
       <button id="reset-filters" class="btn btn--ghost" style="width:100%;">Xóa Bộ Lọc</button>
     </aside>
@@ -113,6 +113,9 @@
           </select>
         </div>
       </div>
+
+      <!-- Active filter tags -->
+      <div id="active-filters-bar" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center;"></div>
 
       <div class="books-grid" id="catalog-grid"></div>
 
@@ -248,26 +251,78 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.filter-option input[type="checkbox"]').forEach(cb => {
     cb.addEventListener('change', applyFilters);
   });
+  document.querySelectorAll('input[name="rating"]').forEach(rb => {
+    rb.addEventListener('change', applyFilters);
+  });
   document.getElementById('reset-filters')?.addEventListener('click', () => {
     document.querySelectorAll('.filter-option input').forEach(i => i.checked = false);
     document.getElementById('price-min').value = '';
     document.getElementById('price-max').value = '';
+    updateActiveFilters();
     filtered = [...BOOKS]; currentPage = 1; render();
   });
   document.getElementById('apply-price')?.addEventListener('click', applyFilters);
 
   function applyFilters() {
-    const cats = [...document.querySelectorAll('.filter-option input[type="checkbox"]:checked')].map(c => c.value).filter(Boolean);
+    // The loai
+    const catChecked = [...document.querySelectorAll('input[id^="f-van-hoc"],input[id^="f-kinh-te"],input[id^="f-tam-ly"],input[id^="f-khoa-hoc"],input[id^="f-thieu-nhi"]')]
+      .filter(c => c.checked).map(c => c.value);
+    // Tac gia
+    const authors = [...document.querySelectorAll('.filter-author:checked')].map(c => c.value);
+    // Nha xuat ban
+    const pubs = [...document.querySelectorAll('.filter-pub:checked')].map(c => c.value);
+    // Khoang gia
     const minVal = document.getElementById('price-min').value;
     const maxVal = document.getElementById('price-max').value;
     const min = minVal !== '' ? parseInt(minVal) : 0;
     const max = maxVal !== '' ? parseInt(maxVal) : Infinity;
+    // Danh gia
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    const minRating = ratingInput ? parseFloat(ratingInput.value) : 0;
+
     filtered = BOOKS.filter(b => {
-      const catOk = cats.length === 0 || cats.includes(b.cat);
+      const catOk   = catChecked.length === 0 || catChecked.includes(b.cat);
+      const authOk  = authors.length === 0 || authors.includes(b.author);
+      const pubOk   = pubs.length === 0 || pubs.includes(b.publisher);
       const priceOk = b.price >= min && b.price <= max;
-      return catOk && priceOk;
+      const ratingOk = b.rating >= minRating;
+      return catOk && authOk && pubOk && priceOk && ratingOk;
     });
-    currentPage = 1; render();
+    currentPage = 1;
+    updateActiveFilters();
+    render();
+  }
+
+  function updateActiveFilters() {
+    const bar = document.getElementById('active-filters-bar');
+    if (!bar) return;
+    const tags = [];
+    document.querySelectorAll('.filter-author:checked').forEach(c => {
+      const el = c; tags.push({ label: c.value, clear: () => { el.checked = false; applyFilters(); } });
+    });
+    document.querySelectorAll('.filter-pub:checked').forEach(c => {
+      const el = c; tags.push({ label: c.value, clear: () => { el.checked = false; applyFilters(); } });
+    });
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    if (ratingInput) {
+      const lbl = ratingInput.value === '5' ? '5 sao' : ratingInput.value === '4' ? '4+ sao' : '3+ sao';
+      const el = ratingInput;
+      tags.push({ label: 'Sao: ' + lbl, clear: () => { el.checked = false; applyFilters(); } });
+    }
+    const minVal = document.getElementById('price-min').value;
+    const maxVal = document.getElementById('price-max').value;
+    if (minVal || maxVal) {
+      const lbl = (minVal ? Number(minVal).toLocaleString('vi-VN') + '\u20ab' : '0') + ' \u2013 ' + (maxVal ? Number(maxVal).toLocaleString('vi-VN') + '\u20ab' : '\u221e');
+      tags.push({ label: 'Gi\xe1: ' + lbl, clear: () => { document.getElementById('price-min').value=''; document.getElementById('price-max').value=''; applyFilters(); } });
+    }
+    const clearFns = tags.map(t => t.clear);
+    bar.innerHTML = tags.map((t,i) =>
+      `<span class="active-filter-tag">${t.label}<button class="active-filter-tag__close" data-i="${i}">\u2715</button></span>`
+    ).join('');
+    bar.querySelectorAll('.active-filter-tag__close').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); clearFns[+btn.dataset.i](); });
+    });
+    bar.style.display = tags.length ? 'flex' : 'none';
   }
 
   // Check URL params
